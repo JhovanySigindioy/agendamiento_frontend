@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { Moon, Sun, Pill, FileText, MapPin, Calendar, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';

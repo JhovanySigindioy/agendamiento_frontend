@@ -142,7 +142,7 @@ function App() {
           {/* <div className="text-center">
             <img src="/img/banner-interno-agenda-cita.webp" alt="" className="w-full h-[8rem] md:h-auto" />
           </div> */}
-          <main className="container mx-auto px-4 py-8 md:py-6">
+          <main className="container mx-auto px-4 py-3 md:py-6">
             <AnimatePresence mode="wait">
               {renderStep()}
             </AnimatePresence>

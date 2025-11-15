@@ -1,28 +1,3 @@
-// import { motion } from 'framer-motion';
-
-// const Step3Schedule = ({  }) => {
-
-
-//   return (
-//     <motion.div
-//       key="step3"
-//       initial={{ opacity: 0, x: 50 }}
-//       animate={{ opacity: 1, x: 0 }}
-//       exit={{ opacity: 0, x: -50 }}
-//       transition={{ duration: 0.5 }}
-//       className="max-w-4xl mx-auto"
-//     >
-     
-
-     
-
- 
-//     </motion.div>
-//   );
-// };
-
-// export default Step3Schedule;
-
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, ArrowLeft, Calendar, Clock } from 'lucide-react';
@@ -43,7 +18,7 @@ const Step3Schedule = ({ formData, setFormData, nextStep, prevStep, toast, farma
     }
     return true;
   };
-  
+
   const handleNext = () => {
     if (validateStep()) {
       nextStep();
@@ -136,11 +111,11 @@ const Step3Schedule = ({ formData, setFormData, nextStep, prevStep, toast, farma
               </div>
               <div className="flex justify-between">
                 <span className="font-medium">Fecha:</span>
-                <span>{new Date(formData.fecha).toLocaleDateString('es-ES', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                <span>{new Date(formData.fecha).toLocaleDateString('es-ES', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}</span>
               </div>
               <div className="flex justify-between">
@@ -161,7 +136,7 @@ const Step3Schedule = ({ formData, setFormData, nextStep, prevStep, toast, farma
           <ArrowLeft className="w-4 h-4" />
           <span>Anterior</span>
         </Button>
-        <Button 
+        <Button
           onClick={handleNext}
           disabled={!formData.fecha || !formData.hora}
           className="bg-primary hover:bg-primary/90 flex items-center space-x-2"
