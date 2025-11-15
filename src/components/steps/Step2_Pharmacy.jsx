@@ -18,7 +18,7 @@ const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast, ciuda
     }
     return true;
   };
-  
+
   const handleNext = () => {
     if (validateStep()) {
       nextStep();
@@ -26,7 +26,7 @@ const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast, ciuda
   };
 
   const getBadgeVariant = (disponibilidad) => {
-    switch(disponibilidad) {
+    switch (disponibilidad) {
       case 'completa': return 'success';
       case 'parcial': return 'secondary';
       default: return 'destructive';
@@ -161,7 +161,11 @@ const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast, ciuda
           <ArrowLeft className="w-4 h-4" />
           <span>Anterior</span>
         </Button>
-       
+        <Button variant="outline" onClick={handleNext} className="flex items-center space-x-2">
+          <span>Siguiente</span>
+          <ArrowRight className="w-4 h-4" />
+        </Button>
+
       </div>
     </motion.div>
   );

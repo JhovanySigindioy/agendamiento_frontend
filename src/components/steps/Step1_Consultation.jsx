@@ -48,16 +48,15 @@ const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
       className="max-w-2xl mx-auto"
     >
 
-
       <div className="text-center mb-8">
-        {/* <motion.div
+        <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
           className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 pulse-blue"
         >
           <FileText className="w-10 h-10 text-primary-foreground" />
-        </motion.div> */}
+        </motion.div>
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">
           Consulta tu Fórmula Médica
         </h2>
@@ -103,12 +102,13 @@ const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
           </div>
 
           <Button
-
+            onClick={handleNext}
             className="w-full h-12 text-lg bg-primary hover:bg-primary/90 transition-all duration-300"
           >
             Consultar Medicamentos
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
+
         </CardContent>
       </Card>
     </motion.div>

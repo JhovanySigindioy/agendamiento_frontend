@@ -128,7 +128,7 @@ function App() {
   return (
     <>
       <Helmet>
-        <title>MediCitas - Agenda tu cita para medicamentos</title>
+        <title>Eticos Citas</title>
         <meta name="description" content="Agenda tu cita para reclamar medicamentos formulados. Evita filas y organiza tu tiempo de manera eficiente." />
       </Helmet>
 
@@ -139,10 +139,10 @@ function App() {
       {!isLoading && (
         <div className="min-h-screen antialiased fade-in">
           <Header darkMode={darkMode} toggleDarkMode={toggleDarkMode} currentStep={currentStep} />
-          <div className="text-center">
+          {/* <div className="text-center">
             <img src="/img/banner-interno-agenda-cita.webp" alt="" className="w-full h-[8rem] md:h-auto" />
-          </div>
-          <main className="container mx-auto px-4 py-8 md:py-12">
+          </div> */}
+          <main className="container mx-auto px-4 py-8 md:py-6">
             <AnimatePresence mode="wait">
               {renderStep()}
             </AnimatePresence>
