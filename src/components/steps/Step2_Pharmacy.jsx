@@ -1,97 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ArrowLeft, MapPin, Pill, FileText, ChevronDown, ListOrdered } from 'lucide-react';
+import { ArrowRight, ArrowLeft, MapPin, FileText, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-// Importamos los componentes Select para mejorar la usabilidad
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { usePrescriptions } from '@/apiHooks/prescription/usePrescriptions';
+import { Laoding } from '../Laoding';
+import FormulaDetailCard from '../FormulaDetailCard';
+import { usePharmacy } from '@/apiHooks/pharmacy/usePharmacy';
+import { use } from 'react';
 
-// --- Datos de Ejemplo (Mantengo los mismos para la demostración) ---
-const mockFormulas = [
-  {
-    formula: 'FORM-001',
-    fechaEvolucion: '2025-10-01',
-    loginProfesional: 'DR-JSMITH',
-    medicamentos: [
-      { codigoMolecula: 'MOL001', descripcionInsumos: 'Amoxicilina 500mg', detalleDosis: '1 tableta cada 8 horas por 7 días', cantidad: 21 },
-      { codigoMolecula: 'MOL002', descripcionInsumos: 'Ibuprofeno 400mg', detalleDosis: '1 tableta cada 6 horas PRN (Según necesidad)', cantidad: 10 },
-    ],
-  },
-  {
-    formula: 'FORM-002',
-    fechaEvolucion: '2025-10-15',
-    loginProfesional: 'DRA-LPEEZ',
-    medicamentos: [
-      { codigoMolecula: 'MOL003', descripcionInsumos: 'Losartán 50mg', detalleDosis: '1 tableta diaria', cantidad: 30 },
-    ],
-  },
-  {
-    formula: 'FORM-003',
-    fechaEvolucion: '2025-11-05',
-    loginProfesional: 'DR-RROJAS',
-    medicamentos: [
-      { codigoMolecula: 'MOL004', descripcionInsumos: 'Loratadina 10mg', detalleDosis: '1 tableta cada 24 horas', cantidad: 14 },
-      { codigoMolecula: 'MOL005', descripcionInsumos: 'Prednisolona 5mg', detalleDosis: '1 tableta cada 12 horas por 5 días', cantidad: 10 },
-    ],
-  },
-];
+const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast }) => {
+  const { getCountPharmaciesQuery, getAllPharmaciesQuery } = usePharmacy();
+  const { getPrescriptionsQuery } = usePrescriptions(formData.cedula);
 
-const FormulaDetailCard = ({ formula }) => (
-  <Card className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm shadow-md transition-all duration-300 hover:shadow-lg">
-    <Accordion type="single" collapsible className="w-full">
-      <AccordionItem value={formula.formula} className="border-b border-primary/20">
-        <AccordionTrigger className="p-4 flex justify-between items-center text-left hover:no-underline">
-          <div className="flex items-center space-x-3">
-            <FileText className="w-5 h-5 text-primary" />
-            <span className="font-bold text-gray-800 dark:text-gray-100">Fórmula: {formula.formula}</span>
-          </div>
-          <Badge variant="secondary" className="hidden sm:inline-flex">
-            {formula.medicamentos.length} Medicamento(s)
-          </Badge>
-          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200" />
-        </AccordionTrigger>
-        <AccordionContent className="p-4 pt-0">
-          <div className="space-y-3">
-            <div className="text-sm text-gray-500 dark:text-gray-400 border-b pb-2 mb-2">
-              <p>Fecha: <span className="font-medium">{formula.fechaEvolucion}</span></p>
-              <p>Profesional: <span className="font-medium">{formula.loginProfesional}</span></p>
-            </div>
-            <h5 className="font-semibold text-primary/90 dark:text-blue-300 flex items-center space-x-2">
-              <ListOrdered className="w-4 h-4" />
-              <span>Detalle de Medicamentos:</span>
-            </h5>
-            <div className="space-y-2">
-              {formula.medicamentos.map((med, idx) => (
-                <div key={idx} className="border-l-4 border-primary/50 pl-3 py-1 bg-gray-50 dark:bg-gray-700 rounded-sm">
-                  <p className="font-medium text-gray-900 dark:text-gray-50">{med.descripcionInsumos}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
-                    **Dosis:** {med.detalleDosis}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Cantidad Requerida: **{med.cantidad}**
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </AccordionContent>
-      </AccordionItem>
-    </Accordion>
-  </Card>
-);
+  const {
+    data: formulasResponse,
+    isLoading,
+    isError,
+  } = getPrescriptionsQuery;
 
-const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast, ciudades, farmacias }) => {
+  const formulas = formulasResponse?.data || [];
+  const formulasCount = formulas.length;
 
-  const formulas = mockFormulas;
+  useEffect(() => {
+    if (!formulas || formulas.length === 0) return;
+
+    const prescriptions = formulas.map(f => f.prescription);
+    setFormData("codigoFormula", prescriptions.join(", "));
+  }, [formulas]);
+
+  const allPharmacies = getAllPharmaciesQuery.data?.data || [];
+
+  const farmaciasFiltradas = React.useMemo(() => {
+    if (!formData.ciudad) return [];
+    return allPharmacies.filter(
+      (f) =>
+        f.City.trim().toLowerCase() === formData.ciudad.trim().toLowerCase() &&
+        f.Name.trim().toLowerCase().indexOf("cirugia") === -1
+    );
+  }, [formData.ciudad, allPharmacies]);
 
   const validateStep = () => {
     if (!formData.ciudad || !formData.farmacia) {
       toast({
         title: "Selección requerida",
         description: "Por favor selecciona una ciudad y farmacia.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return false;
     }
@@ -99,16 +54,11 @@ const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast, ciuda
   };
 
   const handleNext = () => {
-    if (validateStep()) {
-      nextStep();
-    }
+    if (validateStep()) nextStep();
   };
 
-  // Helper para buscar el nombre de la farmacia por ID (necesario para SelectValue)
-  const getFarmaciaNameById = (id) => {
-    const ciudadFarmacias = farmacias[formData.ciudad] || [];
-    const farmacia = ciudadFarmacias.find(f => f.id.toString() === id);
-    return farmacia ? farmacia.nombre : 'Selecciona una farmacia';
+  const handlesetFormData = (field, value) => {
+    alert(field, value);
   };
 
   return (
@@ -133,11 +83,10 @@ const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast, ciuda
           Farmacias
         </h2>
         <p className="text-gray-600 dark:text-gray-300">
-          Elige la ubicación de recogida y revisa tus fórmulas médicas.
+          Porfavor Elija la ubicación de recogida y verifique sus fórmulas médicas.
         </p>
       </div>
 
-      {/* Sección de Selectores (Arriba) */}
       <Card className="mb-4 border-2 border-primary/30 shadow-xl">
         <CardHeader className="bg-primary/5 dark:bg-primary/10 p-4 rounded-t-lg">
           <CardTitle className="text-lg flex items-center space-x-2 text-primary">
@@ -145,100 +94,139 @@ const Step2Pharmacy = ({ formData, setFormData, nextStep, prevStep, toast, ciuda
             <span>Farmacias</span>
           </CardTitle>
         </CardHeader>
+
         <CardContent className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Selector de Ciudad */}
           <div>
-            <label htmlFor="select-ciudad" className="text-sm font-medium leading-none mb-2 block">
+            <label className="text-sm font-medium leading-none mb-2 block">
               Selecciona tu Ciudad
             </label>
             <Select
-              id="select-ciudad"
               value={formData.ciudad}
               onValueChange={(value) => {
-                setFormData('ciudad', value);
-                setFormData('farmacia', ''); // Resetear farmacia al cambiar
+                setFormData("ciudad", value);
+                setFormData("farmacia", "");
               }}
             >
               <SelectTrigger className="w-full h-12">
                 <SelectValue placeholder="Elige una ciudad" />
               </SelectTrigger>
-              <SelectContent>
-                {ciudades.map((ciudad) => (
-                  <SelectItem key={ciudad.id} value={ciudad.nombre}>
-                    {ciudad.nombre} ({ciudad.farmacias})
+
+              <SelectContent className="max-h-80 overflow-y-auto">
+                {getCountPharmaciesQuery.data?.data.map((ciudad, idx) => (
+                  <SelectItem key={idx} value={ciudad.city}>
+                    {ciudad.city} {/*({ciudad.pharmacyCount}) */}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
 
-          {/* Selector de Farmacia */}
           <div>
-            <label htmlFor="select-farmacia" className="text-sm font-medium leading-none mb-2 block">
+            <label className="text-sm font-medium leading-none mb-2 block">
               Farmacia Disponible
             </label>
+
             <Select
-              id="select-farmacia"
               value={formData.farmacia}
-              onValueChange={(value) => setFormData('farmacia', value)}
-              disabled={!formData.ciudad || !farmacias[formData.ciudad]}
+              onValueChange={(value) => {
+                setFormData("farmacia", value);
+
+                const farmaciaSeleccionada = farmaciasFiltradas.find(
+                  (f) => f.IdPharmacy === value
+                );
+
+                if (farmaciaSeleccionada) {
+                  setFormData("codigoCiudad", farmaciaSeleccionada.CityCode);
+                }
+              }}
+              disabled={!formData.ciudad || farmaciasFiltradas.length === 0}
             >
               <SelectTrigger className="w-full h-12">
-                <SelectValue placeholder={formData.ciudad ? "Selecciona una farmacia" : "Selecciona una ciudad primero"} />
+                <SelectValue
+                  placeholder={
+                    formData.ciudad
+                      ? "Selecciona una farmacia"
+                      : "Selecciona una ciudad"
+                  }
+                />
               </SelectTrigger>
-              <SelectContent>
-                {formData.ciudad && farmacias[formData.ciudad] && farmacias[formData.ciudad].map((farmacia) => (
-                  <SelectItem key={farmacia.id} value={farmacia.id.toString()}>
-                    <div className="flex justify-between items-center w-full">
-                      <span>{farmacia.nombre}</span>
-                      <Badge variant="secondary" className="ml-2">
-                        {farmacia.medicamentosDisponibles}/{farmacia.totalMedicamentos}
-                      </Badge>
-                    </div>
-                  </SelectItem>
-                ))}
-                {formData.ciudad && (!farmacias[formData.ciudad] || farmacias[formData.ciudad].length === 0) && (
-                  <SelectItem value="" disabled>
+
+              <SelectContent className="max-h-80 overflow-y-auto">
+                {farmaciasFiltradas.length > 0 ? (
+                  farmaciasFiltradas.map((farmacia) => (
+                    <SelectItem key={farmacia.IdPharmacy} value={farmacia.IdPharmacy}>
+                      <div className="flex flex-col items-start">
+                        <span className="font-medium">{farmacia.Address}</span>
+                        <span className="text-xs text-gray-600">{farmacia.Name}</span>
+                      </div>
+                    </SelectItem>
+                  ))
+                ) : (
+                  <div className="px-3 py-2 text-sm text-gray-500">
                     No hay farmacias disponibles
-                  </SelectItem>
+                  </div>
                 )}
               </SelectContent>
             </Select>
+
           </div>
         </CardContent>
       </Card>
-      {/* Fin Sección de Selectores */}
-
-      {/* Sección de Fórmulas (Debajo) */}
-      <Card className="mb-8 border-2 shadow-2xl">
-        <CardHeader className="bg-secondary/10 dark:bg-secondary/20 p-4 rounded-t-xl">
-          <CardTitle className="text-primary flex items-center space-x-2">
-            <FileText className="w-6 h-6" />
-            <span className="text-[1.125rem]">Fórmulas Médicas a Dispensar ({formulas.length})</span>
-          </CardTitle>
-          <CardDescription>
-            Toca cada fórmula para ver el detalle de medicamentos, dosis y cantidad requerida.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 space-y-2">
-          {formulas.map((formula) => (
-            <FormulaDetailCard key={formula.formula} formula={formula} />
-          ))}
-        </CardContent>
-      </Card>
-      {/* Fin Sección Fórmulas */}
 
 
-      {/* Navegación */}
+      {isLoading ? (
+        <div className="my-8">
+          <Laoding />
+        </div>
+      ) : isError ? (
+        <Card className="mb-8 border-2 border-red-400 shadow-2xl">
+          <CardHeader className="bg-red-50/50 dark:bg-red-900/10 p-4 rounded-t-xl">
+            <CardTitle className="text-red-600 flex items-center space-x-2">
+              <AlertTriangle className="w-6 h-6" />
+              <span>Error al Cargar Fórmulas</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-6 text-red-700 dark:text-red-300">
+            No pudimos obtener las fórmulas médicas. Intenta más tarde.
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="mb-8 border-2 shadow-2xl">
+          <CardHeader className="bg-secondary/10 dark:bg-secondary/20 p-4 rounded-t-xl">
+            <CardTitle className="text-primary flex items-center space-x-2">
+              <FileText className="w-6 h-6" />
+              <span>Cantidad de Fórmulas Médicas Vigentes ({formulasCount})</span>
+            </CardTitle>
+            <CardDescription>
+              Toca cada fórmula para ver los detalles.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-2">
+            {formulasCount > 0 ? (
+              formulas.map((formula) => (
+                <FormulaDetailCard key={formula.formula} formula={formula} />
+              ))
+            ) : (
+              <div className="text-center p-4 text-gray-500">
+                No se encontraron fórmulas activas.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+
       <div className="flex justify-between mt-8">
         <Button variant="outline" onClick={prevStep} className="flex items-center space-x-2">
           <ArrowLeft className="w-4 h-4" />
           <span>Anterior</span>
         </Button>
+
         <Button
           onClick={handleNext}
           className="flex items-center space-x-2 px-8"
-          disabled={!formData.ciudad || !formData.farmacia} // Deshabilitar si no ha seleccionado
+          disabled={!formData.ciudad || !formData.farmacia}
         >
           <span>Continuar</span>
           <ArrowRight className="w-4 h-4" />

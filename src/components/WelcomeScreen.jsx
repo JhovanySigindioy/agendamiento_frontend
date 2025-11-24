@@ -3,12 +3,12 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const WelcomeScreen = () => {
-  const logoUrl = '/img/logoEticos.avif';
+  const logoUrl = '/img/logo_polpharma.png';
 
   const containerVariants = {
     initial: { opacity: 1 },
-    exit: { 
-      opacity: 0, 
+    exit: {
+      opacity: 0,
       transition: { duration: 0.8, ease: 'easeInOut' }
     },
   };
@@ -41,23 +41,23 @@ const WelcomeScreen = () => {
         <motion.img
           src={logoUrl}
           alt="Logo de la empresa"
-          className="w-48 h-auto mb-6"
+          className="w-auto h-30 mb-6"
           variants={itemVariants}
         />
         <motion.h1
-          className="text-3xl md:text-4xl font-extrabold text-gradient mb-2"
+          className="text-2xl md:text-4xl font-extrabold text-gradient mb-2"
           variants={itemVariants}
         >
-          Te da la bienvenida
+          Le da la bienvenida
         </motion.h1>
         <motion.p
           className="text-lg text-muted-foreground"
           variants={itemVariants}
         >
-          Tu sistema de gestión de citas médicas.
+          Sistema de gestión de citas para reclamar sus medicamentos.
         </motion.p>
         <motion.div variants={itemVariants} className="mt-8">
-            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         </motion.div>
       </motion.div>
     </motion.div>

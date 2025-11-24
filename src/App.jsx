@@ -1,45 +1,47 @@
 
-import { useState, useEffect } from 'react';
-import { Helmet } from 'react-helmet';
-import { AnimatePresence } from 'framer-motion';
-import { Toaster } from '@/components/ui/toaster';
-import { toast } from '@/components/ui/use-toast';
-import Header from '@/components/Header';
-import Step1Consultation from '@/components/steps/Step1_Consultation';
-import Step2Pharmacy from '@/components/steps/Step2_Pharmacy';
-import Step3Schedule from '@/components/steps/Step3_Schedule';
-import Step4Confirmation from '@/components/steps/Step4_Confirmation';
-import WelcomeScreen from '@/components/WelcomeScreen';
+import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet";
+import { AnimatePresence } from "framer-motion";
+import { Toaster } from "@/components/ui/toaster";
+import { toast } from "@/components/ui/use-toast";
+import Header from "@/components/Header";
+import Step1Consultation from "@/components/steps/Step1_Consultation";
+import Step2Pharmacy from "@/components/steps/Step2_Pharmacy";
+import Step3Schedule from "@/components/steps/Step3_Schedule";
+import Step4Confirmation from "@/components/steps/Step4_Confirmation";
+import WelcomeScreen from "@/components/WelcomeScreen";
 
-import { farmacias, medicamentos, horariosDisponibles, ciudades } from '@/lib/mockData';
+import { farmacias, medicamentos, horariosDisponibles, ciudades } from "@/lib/mockData";
 
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [appointmentResult, setAppointmentResult] = useState(null);
   const [formData, setFormData] = useState({
-    cedula: '',
-    codigoFormula: '',
-    ciudad: '',
-    farmacia: '',
-    fecha: '',
-    hora: '',
-    email: ''
+    cedula: "",
+    codigoFormula: "",
+    ciudad: "",
+    codigoCiudad: "",
+    farmacia: "",
+    fecha: "",
+    hora: "",
+    email: ""
   });
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
       setDarkMode(true);
-      document.documentElement.classList.add('dark');
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.remove("dark");
     }
 
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2500);
+    }, 1800);
 
     return () => clearTimeout(timer);
   }, []);
@@ -48,11 +50,11 @@ function App() {
     setDarkMode(prev => {
       const newMode = !prev;
       if (newMode) {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
       } else {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
       }
       return newMode;
     });
@@ -65,15 +67,15 @@ function App() {
   const resetApp = () => {
     setCurrentStep(1);
     setFormData({
-      cedula: '',
-      codigoFormula: '',
-      ciudad: '',
-      farmacia: '',
-      fecha: '',
-      hora: '',
-      email: ''
+      cedula: "",
+      codigoFormula: "",
+      ciudad: "",
+      farmacia: "",
+      fecha: "",
+      hora: "",
+      email: ""
     });
-    localStorage.removeItem('cita-medicamentos');
+    localStorage.removeItem("cita-medicamentos");
   };
 
   const cancelAppointment = () => {
@@ -110,7 +112,7 @@ function App() {
       case 2:
         return <Step2Pharmacy {...stepProps} ciudades={ciudades} farmacias={farmacias} medicamentos={medicamentos} />;
       case 3:
-        return <Step3Schedule {...stepProps} farmacias={farmacias} medicamentos={medicamentos} horariosDisponibles={horariosDisponibles} />;
+        return <Step3Schedule {...stepProps} farmacias={farmacias} medicamentos={medicamentos} horariosDisponibles={horariosDisponibles} setAppointmentResult={setAppointmentResult} />;
       case 4:
         return <Step4Confirmation
           formData={formData}
@@ -119,6 +121,7 @@ function App() {
           resetApp={resetApp}
           cancelAppointment={cancelAppointment}
           rescheduleAppointment={rescheduleAppointment}
+          appointmentResult={appointmentResult}
         />;
       default:
         return <Step1Consultation {...stepProps} />;
@@ -128,7 +131,7 @@ function App() {
   return (
     <>
       <Helmet>
-        <title>Eticos Citas</title>
+        <title>Polpharma UT - Agende su cita</title>
         <meta name="description" content="Agenda tu cita para reclamar medicamentos formulados. Evita filas y organiza tu tiempo de manera eficiente." />
       </Helmet>
 

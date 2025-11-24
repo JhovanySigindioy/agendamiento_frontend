@@ -1,13 +1,66 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, User, FileText } from 'lucide-react';
+import { ArrowRight, User, FileText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useValidatePresciptionPatient } from '@/apiHooks/prescription/useValidatePresciptionPatient';
+import { useEffect } from 'react';
 
 const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
 
-  const validateStep = () => {
+  const { validatePresciptionPatientQuery } = useValidatePresciptionPatient(
+    formData.cedula,
+    formData.codigoFormula
+  );
+
+  const {
+    data,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    refetch,
+    isFetched,
+  } = validatePresciptionPatientQuery;
+
+  useEffect(() => {
+
+    if (isFetched && data) {
+      if (Array.isArray(data) && data.length > 0) {
+        toast({
+          title: "¡Fórmula Encontrada!",
+          description: "Se ha validado la fórmula médica. Continuar con la dispensación.",
+        });
+        nextStep();
+      } else if (Array.isArray(data) && data.length === 0) {
+
+        toast({
+          title: "¡Fórmula NO encontrada!",
+          description: "No se encontró información, verifique que el número de identificación y número fórmula sean correctos.",
+          variant: "destructive"
+        });
+      } else if (data) {
+        toast({
+          title: "¡Fórmula Encontrada!",
+          description: "Se ha validado la fórmula médica. Continuar con la dispensación.",
+        });
+        nextStep();
+      }
+    }
+
+    if (isError) {
+      toast({
+        title: "Error de Validación",
+        description: "Fórmula o paciente no encontrado, o la fórmula no pertenece al paciente.",
+        variant: "destructive"
+      });
+    }
+
+
+  }, [data, isFetched, isError, error, nextStep, toast]);
+
+  const validateFields = () => {
     if (!formData.cedula || !formData.codigoFormula) {
       toast({
         title: "Campos requeridos",
@@ -27,18 +80,15 @@ const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
     return true;
   };
 
-  const handleNext = () => {
-    if (validateStep()) {
-      toast({
-        title: "¡Fórmula encontrada!",
-        description: "Hemos encontrado tus medicamentos. Continúa para seleccionar farmacia."
-      });
-      nextStep();
+  const handleConsult = () => {
+    if (validateFields()) {
+      refetch();
     }
   };
 
-  return (
+  const isQuerying = isLoading || isFetching;
 
+  return (
     <motion.div
       key="step1"
       initial={{ opacity: 0, x: 50 }}
@@ -47,7 +97,6 @@ const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
       transition={{ duration: 0.5 }}
       className="max-w-2xl mx-auto"
     >
-
       <div className="text-center mb-8">
         <motion.div
           initial={{ scale: 0 }}
@@ -58,10 +107,10 @@ const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
           <FileText className="w-10 h-10 text-primary-foreground" />
         </motion.div>
         <h2 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">
-          Consulta tu Fórmula Médica
+          Consulte su Fórmula Médica
         </h2>
         <p className="text-gray-600 dark:text-gray-300 text-sm">
-          Ingresa tus datos para verificar los medicamentos disponibles
+          Ingrese sus datos para verificar fórmulas vigentes
         </p>
       </div>
 
@@ -74,7 +123,7 @@ const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
           <div className="space-y-2">
             <Label htmlFor="cedula" className="text-sm font-medium flex items-center space-x-2">
               <User className="w-4 h-4" />
-              <span>Número de Cédula</span>
+              <span>Número de identificación</span>
             </Label>
             <Input
               id="cedula"
@@ -83,30 +132,43 @@ const Step1Consultation = ({ formData, setFormData, nextStep, toast }) => {
               value={formData.cedula}
               onChange={(e) => setFormData('cedula', e.target.value)}
               className="h-12 text-lg"
+              disabled={isQuerying}
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="codigo" className="text-sm font-medium flex items-center space-x-2">
               <FileText className="w-4 h-4" />
-              <span>Código de Fórmula Médica</span>
+              <span>Número de Fórmula Médica</span>
             </Label>
             <Input
               id="codigo"
               type="text"
-              placeholder="Ej: CODFORM-2024-001234"
               value={formData.codigoFormula}
               onChange={(e) => setFormData('codigoFormula', e.target.value)}
               className="h-12 text-lg"
+              disabled={isQuerying}
             />
+            <span className="text-sm text-gray-500 pt-1">Ejemplo: 2510183369</span>
           </div>
 
+          {/* Botón de Consulta con Estado de Carga */}
           <Button
-            onClick={handleNext}
+            onClick={handleConsult}
             className="w-full h-12 text-lg bg-primary hover:bg-primary/90 transition-all duration-300"
+            disabled={isQuerying}
           >
-            Consultar Medicamentos
-            <ArrowRight className="w-5 h-5 ml-2" />
+            {isQuerying ? (
+              <>
+                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                Consultando...
+              </>
+            ) : (
+              <>
+                Consultar Medicamentos
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </>
+            )}
           </Button>
 
         </CardContent>

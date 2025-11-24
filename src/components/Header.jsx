@@ -14,7 +14,7 @@ const Header = ({ darkMode, toggleDarkMode, currentStep }) => {
   const handleLogoClick = () => {
     toast({
       title: ' Redirección no implementada',
-      description: 'En una aplicación real, esto te llevaría a la página de inicio. ¡Puedes solicitarlo en tu próximo mensaje! 🚀'
+      description: 'Validacion toast.'
     });
   }
 
@@ -32,8 +32,8 @@ const Header = ({ darkMode, toggleDarkMode, currentStep }) => {
             <Pill className="w-6 h-6 text-white" />
           </div> */}
           <div>
-            <img src="/img/logoEticos.avif" alt="logo eticos" className="w-40 h-10" />
-            <p className="text-xs text-muted-foreground">Compromiso y servicio farmacutico</p>
+            <img src="/img/logo_polpharma.png" alt="logo eticos" className="w-auto h-11" />
+            <p className="text-xs text-muted-foreground ml-2">Compromiso y servicio farmacéutico</p>
           </div>
         </motion.div>
 
@@ -41,15 +41,13 @@ const Header = ({ darkMode, toggleDarkMode, currentStep }) => {
           <div className="hidden md:flex items-center space-x-1 bg-slate-100 dark:bg-gray-800 p-1 rounded-full">
             {steps.map((step, index) => (
               <div key={step.number} className="flex items-center">
-                <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${
-                  currentStep === step.number
-                    ? 'bg-primary-gradient text-primary-foreground shadow-md'
-                    : 'text-muted-foreground'
-                } ${
-                  currentStep > step.number
+                <div className={`flex items-center space-x-2 px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 ${currentStep === step.number
+                  ? 'bg-primary-gradient text-primary-foreground shadow-md'
+                  : 'text-muted-foreground'
+                  } ${currentStep > step.number
                     ? 'bg-primary-gradient/20 text-primary'
                     : ''
-                }`}>
+                  }`}>
                   <step.icon className="w-4 h-4" />
                   <span className="hidden lg:inline">{step.title}</span>
                 </div>
